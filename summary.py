@@ -5,7 +5,7 @@ SUMMARY_SYSTEM_PROMPT = {
     "role": "system",
     "content": (
         "You are a memory compression engine. "
-        "Only extract facts explicily stated by the user. "
+        "Only extract facts explicitly stated by the user. "
         "DO NOT infer, guess, or assume. "
         "If no new facts exist, return the old summary unchanged."
         "If newer information contradicts older summary facts, "

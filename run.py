@@ -2,8 +2,8 @@ import chatbot
 
 # Shows various chatbot responses according to the user input prompts.
 
-chatbot.chat("Tell me about token and how we realize the tokenization.")
-chatbot.chat("Where is the capital of France?")
+# chatbot.chat("Tell me about token and how we realize the tokenization.")
+# chatbot.chat("Where is the capital of France?")
 
 # for m in conversations["tutor"]:
 #     print(m["role"], ": ", m["content"])
@@ -27,3 +27,6 @@ chatbot.chat("My app crashes on login")
 
 for m in chatbot.global_conversation:
     print(f"[{m['persona']}] {m['role']}: {m['content']}")
+
+result = chatbot.chat_json("What is tokenization?")
+print(result)

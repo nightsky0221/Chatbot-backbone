@@ -1,9 +1,10 @@
 import router as rt
 import persona as ps
 import llm
-import summary as suma
+import summary as summarize
+import Json_structure as js
 
-# create conversation store to read the user requests, send reponses and save historis by per persona.
+# create conversation store to read the user requests, send reponses and save histories by per persona.
 conversations = {"tutor": [], "support": [], "other": []}
 # create global conversation manager over personas
 global_conversation = []
@@ -45,18 +46,17 @@ def chat(user_input, persona=None):
     conversations[persona].append(user_msg)
     global_conversation.append(user_msg)
 
-# count the turns of conversation.
-    turns = len(conversations[persona]) // 2
-
 # after a certain turns, we start summarization to use limited memory efficiently
-    if turns >= SUMMARY_TRIGGER:
+# *2 means that every conversation includes user and assistant dialogues for a couple
+    if len(conversations[persona]) >= SUMMARY_TRIGGER * 2:
 
         # extract system messages and cut the old messages from whole conversation histories.
-        chunk = suma.extract_user_assistant_messages(conversations[persona][:-MAX_TURN])
+        old_messages = conversations[persona][:-MAX_TURN]
+        chunk = summarize.extract_user_assistant_messages(old_messages)
 
         # summarize the old messages and limit the summarization up to its maximum size
-        conversation_summaries[persona] = suma.clamp_summary(
-            suma.update_summary(
+        conversation_summaries[persona] = summarize.clamp_summary(
+            summarize.update_summary(
                 conversation_summaries[persona],
                 chunk
             )
@@ -65,7 +65,7 @@ def chat(user_input, persona=None):
         conversations[persona] = conversations[persona][-MAX_TURN:]
 
     
-    # Keep this priority order : persona > system > user, assistant
+    # Keep this priority order : persona(system) > summary(system) > user, assistant
 
     messages = [ps.personas[persona]]
 
@@ -85,7 +85,7 @@ def chat(user_input, persona=None):
     # return "normal"
 
     # send the message to call the LLMs to get a response according to the request.
-    response = llm.fake_llm(messages, persona)
+    response = llm.llm_call(messages, persona)
 
     assistant_msg = {
         "role": "assistant",
@@ -110,3 +110,23 @@ def reset_conversation():
     for persona in conversations:
         conversations[persona].clear()
     global_conversation.clear()
+
+# new chat function to use json_structure
+
+def chat_json(user_input, persona=None):
+    # Returns a JSON-structured response validated against OUTPUT_SCHEMA
+
+    if persona is None:
+        persona = rt.route_persona(user_input)
+
+    messages = []
+
+    # Add persona instruction BEFORE JSON system message, persona instruction first
+    messages.append(ps.personas.get(persona, ps.personas["other"]))
+    # JSON enforcement second
+    messages.append(js.JSON_SYSTEM_PROMPT)
+    # Build JSON-enforced prompt
+    messages = js.build_json_prompt(user_input, persona)
+
+    response = llm.llm_call(messages, persona)
+    return js.parse_and_validate(response)

@@ -1,9 +1,31 @@
+import json
 
 # define LLMs model that generates responses to the requests
 
-def fake_llm(messages, persona):
+def llm_call(messages, persona):
+     
+    # Detect JSON-enforced mode
+    json_mode = any(
+        isinstance(m, dict)
+        and m.get("role") == "system"
+        and isinstance(m.get("content"), str)
+        and "ONLY in valid JSON" in m["content"]
+        for m in messages
+    )
 
-# user_input is used for comparing the request with keywords, it's not currently activated but you will use it if neccessary
+    # Test
+
+    for i, m in enumerate(messages):
+        if not isinstance(m, dict):
+            print(f"[DEBUG] Invalid message at index {i}: {m}")
+
+    if json_mode:
+        return json.dumps({
+            "answer": "This is a structured response to your question.",
+            "confidence": 0.85
+        })
+
+    # user_input is used for comparing the request with keywords, it's not currently activated but you will use it if neccessary
     user_input = messages[-1]["content"]
 
     if persona == "tutor":
@@ -46,9 +68,8 @@ def fake_llm(messages, persona):
             "If the problem persists, I will escalate this to our technical team."
         )
     
-    elif persona == "other":
-        return(
-            "Thanks for your question. "
-            "This request doesn't fall under NLP tutoring or product support. "
-            "Could you please clarify or provide more details so I can help you."
-        )
+    return(
+        "Thanks for your question. "
+        "This request doesn't fall under NLP tutoring or product support. "
+        "Could you please clarify or provide more details?"
+    )

@@ -1,3 +1,0 @@
-openai
-huggingface_hub
-ollama

@@ -9,6 +9,8 @@ personas = {
             "Explain concepts step-by-step using simple language. "
             "Use short paragraphs and examples. "
             "Ask one follow-up question after each answer. "
+            "Format answers using bullet points. "
+            "Limit responses to 5 bullet max. "
         )
     },
     "support": {
@@ -29,8 +31,3 @@ personas = {
 
     }
 }
-
-personas["tutor"]["content"] += (
-    "Format answers using bullet points. "
-    "Limit responses to 5 bullet max. "
-)

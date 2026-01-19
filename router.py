@@ -3,12 +3,12 @@
 
 def route_persona(user_input):
 
-    text = user_input.lower()
+    text = user_input.lower().replace("'", "")
 
 # Set keywords for each persona
 
     support_keywords = [
-        "crash", "error", "bug", "login", "issue", "problem", "doesn't work", "failed", "help", "support"
+        "crash", "error", "bug", "login", "issue", "problem", "doesnt work", "failed", "help", "support"
     ]
 
     tutor_keywords = [
